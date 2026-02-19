@@ -17,7 +17,7 @@ export default function Home() {
         </Link>
 
         <Link
-          href="/news"
+          href="https://com-liard.vercel.app"
           className="bg-white border border-black px-4 py-2 rounded"
         >
           সংবাদ পড়ুন
