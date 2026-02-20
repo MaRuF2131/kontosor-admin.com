@@ -1,25 +1,66 @@
-
 "use client";
+
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import api from "../../lib/axios";
 import toast from "react-hot-toast";
-import CategoryDropdown from "./CategoryDropdown";
-import UploadImage from "./UploadImage";
 
 export default function NewsForm({ defaultValues }) {
   const queryClient = useQueryClient();
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm({
     defaultValues: defaultValues || {
+      reporter: "",
       title: "",
-      content: "",
+      description: "",
       category: "",
-      thumbnail: { url: "", public_id: "" },
+      subcategory: "",
+      locationType: "bangladesh",
+      country: "",
+      division: "",
+      district: "",
+      upazila: "",
+      image: null,
+      imageBy: "",
       status: "draft",
       breaking: false,
-      featured: false,
-    }
+    },
   });
+
+  // -------------------------
+  // ডাইনামিক ডাটা (ডেমো)
+  // -------------------------
+
+  const categories = {
+    রাজনীতি: ["জাতীয়", "আন্তর্জাতিক"],
+    খেলাধুলা: ["ক্রিকেট", "ফুটবল"],
+    বিনোদন: ["চলচ্চিত্র", "টিভি"],
+  };
+
+  const divisions = {
+    ঢাকা: ["গাজীপুর", "নারায়ণগঞ্জ"],
+    চট্টগ্রাম: ["কুমিল্লা", "ফেনী"],
+  };
+
+  const districts = {
+    গাজীপুর: ["কালীগঞ্জ", "টঙ্গী"],
+    নারায়ণগঞ্জ: ["সোনারগাঁও", "রূপগঞ্জ"],
+  };
+
+  const locationType = watch("locationType");
+  const selectedDivision = watch("division");
+  const selectedDistrict = watch("district");
+
+  // -------------------------
+  // React Query Mutation
+  // -------------------------
 
   const mutation = useMutation({
     mutationFn: async (data) => {
@@ -29,78 +70,172 @@ export default function NewsForm({ defaultValues }) {
       return api.post("/admin/news", data);
     },
     onSuccess: () => {
-      toast.success("Saved successfully");
+      toast.success("সংবাদ সফলভাবে সংরক্ষণ হয়েছে");
       queryClient.invalidateQueries(["news"]);
     },
     onError: () => {
-      toast.error("Something went wrong");
-    }
+      toast.error("কিছু সমস্যা হয়েছে");
+    },
   });
 
   const onSubmit = (data) => mutation.mutate(data);
 
+  // -------------------------
+  // ছবি প্রিভিউ
+  // -------------------------
+
+  const [preview, setPreview] = useState(null);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setValue("image", file);
+    setPreview(URL.createObjectURL(file));
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 bg-white p-6 rounded shadow">
-      {/* Title */}
-      <div>
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-4 bg-white p-6 rounded shadow"
+    >
+      <h2 className="text-xl font-bold">সংবাদ ফর্ম</h2>
+
+      {/* প্রতিবেদক */}
+      <input
+        {...register("reporter", { required: "প্রতিবেদকের নাম দিন" })}
+        placeholder="প্রতিবেদকের নাম"
+        className="w-full border p-2 rounded"
+      />
+      {errors.reporter && (
+        <p className="text-red-500 text-sm">{errors.reporter.message}</p>
+      )}
+
+      {/* শিরোনাম */}
+      <input
+        {...register("title", { required: "শিরোনাম দিন" })}
+        placeholder="সংবাদের শিরোনাম"
+        className="w-full border p-2 rounded"
+      />
+      {errors.title && (
+        <p className="text-red-500 text-sm">{errors.title.message}</p>
+      )}
+
+      {/* বিবরণ */}
+      <textarea
+        {...register("description", { required: "বিবরণ দিন" })}
+        placeholder="সংবাদের বিস্তারিত বিবরণ"
+        className="w-full border p-2 rounded h-32"
+      />
+
+      {/* বিভাগ */}
+      <select {...register("category")} className="w-full border p-2 rounded">
+        <option value="">বিভাগ নির্বাচন করুন</option>
+        {Object.keys(categories).map((cat) => (
+          <option key={cat} value={cat}>
+            {cat}
+          </option>
+        ))}
+      </select>
+
+      {/* উপবিভাগ */}
+      {watch("category") && (
+        <select {...register("subcategory")} className="w-full border p-2 rounded">
+          <option value="">উপবিভাগ নির্বাচন করুন</option>
+          {categories[watch("category")]?.map((sub) => (
+            <option key={sub} value={sub}>
+              {sub}
+            </option>
+          ))}
+        </select>
+      )}
+
+      {/* বিশ্ব / বাংলাদেশ */}
+      <select {...register("locationType")} className="w-full border p-2 rounded">
+        <option value="bangladesh">বাংলাদেশ</option>
+        <option value="world">বিশ্ব</option>
+      </select>
+
+      {/* বিশ্ব অপশন */}
+      {locationType === "world" && (
         <input
-          {...register("title", { required: "Title required" })}
-          placeholder="Title"
+          {...register("country")}
+          placeholder="দেশের নাম লিখুন"
           className="w-full border p-2 rounded"
         />
-        {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
-      </div>
+      )}
 
-      {/* Content */}
-      <div>
-        <textarea
-          {...register("content", { required: true })}
-          placeholder="Content"
-          className="w-full border p-2 rounded h-32"
+      {/* বাংলাদেশ অপশন */}
+      {locationType === "bangladesh" && (
+        <>
+          <select {...register("division")} className="w-full border p-2 rounded">
+            <option value="">বিভাগ নির্বাচন করুন</option>
+            {Object.keys(divisions).map((div) => (
+              <option key={div} value={div}>
+                {div}
+              </option>
+            ))}
+          </select>
+
+          {selectedDivision && (
+            <select {...register("district")} className="w-full border p-2 rounded">
+              <option value="">জেলা নির্বাচন করুন</option>
+              {divisions[selectedDivision]?.map((dist) => (
+                <option key={dist} value={dist}>
+                  {dist}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {selectedDistrict && (
+            <select {...register("upazila")} className="w-full border p-2 rounded">
+              <option value="">উপজেলা নির্বাচন করুন</option>
+              {districts[selectedDistrict]?.map((upa) => (
+                <option key={upa} value={upa}>
+                  {upa}
+                </option>
+              ))}
+            </select>
+          )}
+        </>
+      )}
+
+      {/* ছবি */}
+      <input type="file" accept="image/*" onChange={handleImageChange} />
+
+      {preview && (
+        <img
+          src={preview}
+          alt="preview"
+          className="w-40 h-28 object-cover rounded"
         />
-      </div>
+      )}
 
-      {/* Category Dropdown */}
-      <div>
-        <CategoryDropdown
-          value={watch("category")}
-          onChange={(val) => setValue("category", val)}
-        />
-      </div>
+      {/* ছবির কৃতিত্ব */}
+      <input
+        {...register("imageBy")}
+        placeholder="ছবির কৃতিত্ব (ফটো: )"
+        className="w-full border p-2 rounded"
+      />
 
-      {/* Thumbnail Upload */}
-      <div>
-        <UploadImage
-          defaultImage={watch("thumbnail")?.url}
-          onUpload={(url, public_id) =>
-            setValue("thumbnail", { url, public_id })
-          }
-        />
-      </div>
+      {/* স্ট্যাটাস */}
+      <select {...register("status")} className="w-full border p-2 rounded">
+        <option value="draft">ড্রাফট</option>
+        <option value="published">প্রকাশিত</option>
+      </select>
 
-      {/* Status & Toggles */}
-      <div className="flex items-center space-x-4">
-        <select
-          {...register("status")}
-          className="border p-2 rounded"
-        >
-          <option value="draft">Draft</option>
-          <option value="published">Published</option>
-        </select>
+      {/* ব্রেকিং */}
+      <label className="flex items-center space-x-2">
+        <input type="checkbox" {...register("breaking")} />
+        <span>ব্রেকিং সংবাদ</span>
+      </label>
 
-        <label className="flex items-center space-x-2">
-          <input type="checkbox" {...register("breaking")} />
-          <span>Breaking</span>
-        </label>
-
-        <label className="flex items-center space-x-2">
-          <input type="checkbox" {...register("featured")} />
-          <span>Featured</span>
-        </label>
-      </div>
-
-      <button type="submit" className="bg-black text-white px-4 py-2 rounded">
-        {defaultValues ? "Update News" : "Add News"}
+      <button
+        type="submit"
+        className="bg-black text-white px-4 py-2 rounded"
+      >
+        {defaultValues ? "সংবাদ আপডেট করুন" : "সংবাদ যোগ করুন"}
       </button>
     </form>
   );
