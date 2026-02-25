@@ -1,122 +1,154 @@
 "use client";
 
-import { useState } from "react";
+import PostFuntion from "@/lib/PostFuntion";
+import { useEffect } from "react";
+import { useForm, useFieldArray } from "react-hook-form";
 
-export default function PhotoStoryForm() {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [images, setImages] = useState([]);
-  const [status, setStatus] = useState("draft");
+export default function PhotoStoryForm({ defaultValues }) {
+  const {
+    register,
+    control,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      _id:defaultValues?._id || null,
+      status: defaultValues?.status || "draft",
+      images: [],
+      captions:[]
+    },
+  });
 
-  // Image Upload Handler
+
+  useEffect(() => {
+  if (defaultValues?.images?.length) {
+    reset({
+      _id: defaultValues?._id,
+      status: defaultValues?.status || "draft",
+      images: defaultValues.images.map((img) => ({
+        preview: img.imageUrl,   // old image url
+        secure:img.imagePublicId,
+        caption: img.caption,
+      }))
+    });
+  }
+}, [defaultValues]);
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "images",
+  });
+
+  // 📸 Image Upload Handler
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
 
-    const newImages = files.map((file) => ({
-      file,
-      preview: URL.createObjectURL(file),
-      caption: "",
-    }));
-
-    setImages((prev) => [...prev, ...newImages]);
-  };
-
-  // Caption Change
-  const handleCaptionChange = (index, value) => {
-    const updated = [...images];
-    updated[index].caption = value;
-    setImages(updated);
-  };
-
-  // Remove Image
-  const removeImage = (index) => {
-    const updated = [...images];
-    updated.splice(index, 1);
-    setImages(updated);
-  };
-
-  // Submit
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("description", description);
-    formData.append("status", status);
-
-    images.forEach((img, index) => {
-      formData.append("images", img.file);
-      formData.append(`caption_${index}`, img.caption);
+    files.forEach((file) => {
+      append({
+        file,
+        preview: URL.createObjectURL(file),
+        caption: "",
+      });
     });
+  };
 
-    console.log("Submit Data:", { title, description, images, status });
+  const mutation=PostFuntion(reset);
 
-    alert("ফটো স্টোরি সফলভাবে সংরক্ষণ হয়েছে!");
+  // 🚀 Submit
+  const onSubmit = (data) => {
+    const formData = new FormData();
+    console.log("data",data);
+    
+     formData.append("status", data.status);
+
+     let existingImages = [];
+
+      data.images.forEach((img) => {
+
+        //  Existing Image
+        if (img.secure) {
+          existingImages.push({
+            imageUrl: img.preview,
+            imagePublicId: img.secure,
+            caption: img.caption,
+          });
+        }
+
+        //  New Image
+        if (img.file) {
+          formData.append("images", img.file);
+          formData.append("captions", img.caption);
+        }
+
+      });
+
+    //  Existing images array stringify করে পাঠাও
+     formData.append("existingImages", JSON.stringify(existingImages));
+
+    console.log("Submit Data:", data);
+
+     mutation.mutate({data:formData,
+               query:{
+                id:data?._id || null,
+                url:"/admin/photo_story",
+                search:"",
+                status:'all',
+                }
+             }); 
+
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded shadow">
-
-      <h2 className="text-2xl font-bold">নতুন ফটো স্টোরি যোগ করুন</h2>
-
-      {/* Title */}
-      <div>
-        <label className="block font-semibold mb-1">শিরোনাম</label>
-        <input
-          type="text"
-          className="w-full border p-2 rounded"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
-      </div>
-
-      {/* Description */}
-      <div>
-        <label className="block font-semibold mb-1">সংক্ষিপ্ত বিবরণ</label>
-        <textarea
-          className="w-full border p-2 rounded"
-          rows="3"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-      </div>
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-6 bg-white p-6 rounded shadow"
+    >
+      <h2 className="text-2xl font-bold">
+        {defaultValues
+          ? "ফটো স্টোরি আপডেট করুন"
+          : "নতুন ফটো স্টোরি যোগ করুন"}
+      </h2>
 
       {/* Image Upload */}
       <div>
-        <label className="block font-semibold mb-1">ছবি আপলোড করুন</label>
+        <label className="block font-semibold mb-1">
+          ছবি আপলোড করুন
+        </label>
         <input
           type="file"
           multiple
           accept="image/*"
+          required={fields.length <= 0}
           onChange={handleImageUpload}
         />
       </div>
 
       {/* Preview Section */}
-      {images.length > 0 && (
+      {fields.length > 0 && (
         <div className="grid grid-cols-2 gap-4">
-          {images.map((img, index) => (
-            <div key={index} className="border p-2 rounded bg-gray-50">
+          {fields.map((field, index) => (
+            <div
+              key={field.id}
+              className="border p-2 rounded bg-gray-50"
+            >
               <img
-                src={img.preview}
-                alt="preview"
+                src={field.preview}
                 className="w-full h-40 object-cover rounded"
               />
 
               <input
                 type="text"
+                required
                 placeholder="ছবির ক্যাপশন লিখুন"
                 className="w-full mt-2 border p-1 rounded"
-                value={img.caption}
-                onChange={(e) =>
-                  handleCaptionChange(index, e.target.value)
-                }
+                {...register(`images.${index}.caption`)}
               />
 
               <button
                 type="button"
-                onClick={() => removeImage(index)}
+                onClick={() => remove(index)}
                 className="mt-2 text-red-600 text-sm"
               >
                 মুছে ফেলুন
@@ -131,8 +163,7 @@ export default function PhotoStoryForm() {
         <label className="block font-semibold mb-1">স্ট্যাটাস</label>
         <select
           className="border p-2 rounded"
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
+          {...register("status")}
         >
           <option value="draft">ড্রাফট</option>
           <option value="published">প্রকাশিত</option>
@@ -142,9 +173,10 @@ export default function PhotoStoryForm() {
       {/* Submit */}
       <button
         type="submit"
+        disabled={mutation.isPending}
         className="bg-black text-white px-6 py-2 rounded hover:bg-gray-800"
       >
-        সংরক্ষণ করুন
+        {defaultValues ?(mutation.isPending ? "লোড হচ্ছে..." : "আপডেট করুন") : (mutation.isPending ? "লোড হচ্ছে..." : "যোগ করুন")}
       </button>
     </form>
   );

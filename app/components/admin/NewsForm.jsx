@@ -1,38 +1,63 @@
 "use client";
-
 import { useForm } from "react-hook-form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import api from "../../lib/axios";
-import toast from "react-hot-toast";
+import Image from "next/image";
+import PostFuntion from "@/lib/PostFuntion";
+import { CreateFormData } from "@/lib/CreateFormData";
 
 export default function NewsForm({ defaultValues }) {
-  const queryClient = useQueryClient();
 
   const {
     register,
     handleSubmit,
-    setValue,
     watch,
+    reset,
     formState: { errors },
   } = useForm({
-    defaultValues: defaultValues || {
-      reporter: "",
-      title: "",
-      description: "",
-      category: "",
-      subcategory: "",
-      locationType: "bangladesh",
-      country: "",
-      division: "",
-      district: "",
-      upazila: "",
-      image: null,
-      imageBy: "",
-      status: "draft",
-      breaking: false,
+      defaultValues:{
+      _id:defaultValues?._id || null, 
+      reporter: defaultValues?.reporter || "",
+      title:defaultValues?.title || "",
+      description: defaultValues?.description ||"",
+      category: defaultValues?.category ||"",
+      subcategory: defaultValues?.subcategory ||"",
+      locationType:defaultValues?.locationType || "bangladesh",
+      country: defaultValues?.country ||"",
+      division: defaultValues?.division ||"",
+      district:defaultValues?.district || "",
+      upazila:defaultValues?.upazila || "",
+      image:defaultValues?.imageUrl || null,
+      imageBy:defaultValues?.imageBy || "",
+      status:defaultValues?.status || "draft",
+      breaking:defaultValues?.breaking==="true"  || false,
     },
   });
+
+
+  useEffect(()=>{
+    if(defaultValues){
+
+      console.log("d",defaultValues);
+      
+       reset({
+      _id:defaultValues?._id || null, 
+      reporter: defaultValues?.reporter || "",
+      title:defaultValues?.title || "",
+      description: defaultValues?.description ||"",
+      category: defaultValues?.category ||"",
+      subcategory: defaultValues?.subcategory ||"",
+      locationType:defaultValues?.locationType || "bangladesh",
+      country: defaultValues?.country ||"",
+      division: defaultValues?.division ||"",
+      district:defaultValues?.district || "",
+      upazila:defaultValues?.upazila || "",
+      image:defaultValues?.imageUrl || null,
+      imageBy:defaultValues?.imageBy || "",
+      status:defaultValues?.status || "draft",
+      breaking:defaultValues?.breaking==='true' || false,
+      })
+    }
+  },[defaultValues])
 
   // -------------------------
   // ডাইনামিক ডাটা (ডেমো)
@@ -57,42 +82,52 @@ export default function NewsForm({ defaultValues }) {
   const locationType = watch("locationType");
   const selectedDivision = watch("division");
   const selectedDistrict = watch("district");
+  const [preview, setPreview] = useState(null);
+  const imageFile = watch("image");
+  const mutation=PostFuntion(reset);
+
+    useEffect(() => {
+      if ((!imageFile || imageFile.length === 0 || errors?.image?.message) ) {   
+        setPreview(null);
+        return;
+      }
+
+        if (typeof imageFile === "string") {
+          setPreview(imageFile);
+          return;
+        }
+
+      const objectUrl = URL.createObjectURL(imageFile[0]);
+      setPreview(objectUrl);
+
+      return () => URL.revokeObjectURL(objectUrl);
+    }, [imageFile, errors?.image?.message]);
 
   // -------------------------
   // React Query Mutation
   // -------------------------
 
-  const mutation = useMutation({
-    mutationFn: async (data) => {
-      if (defaultValues?._id) {
-        return api.put(`/admin/news/${defaultValues._id}`, data);
-      }
-      return api.post("/admin/news", data);
-    },
-    onSuccess: () => {
-      toast.success("সংবাদ সফলভাবে সংরক্ষণ হয়েছে");
-      queryClient.invalidateQueries(["news"]);
-    },
-    onError: () => {
-      toast.error("কিছু সমস্যা হয়েছে");
-    },
-  });
+  const onSubmit = async(data) =>{
+    const formData= await CreateFormData(data);
+     mutation.mutate({data:formData,
+               query:{
+                id:data?._id || null,
+                url:"/admin/news",
+                breaking:'all',
+                search: '',
+                status:'all',
+                locationType:'all',
+                subcategory:'all',
+                category:'all'
+                }
+             });
+  }
 
-  const onSubmit = (data) => mutation.mutate(data);
+  
 
   // -------------------------
   // ছবি প্রিভিউ
   // -------------------------
-
-  const [preview, setPreview] = useState(null);
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    setValue("image", file);
-    setPreview(URL.createObjectURL(file));
-  };
 
   return (
     <form
@@ -202,12 +237,16 @@ export default function NewsForm({ defaultValues }) {
       )}
 
       {/* ছবি */}
-      <input type="file" accept="image/*" onChange={handleImageChange} />
+      <input type="file" accept="image/*"
+         {...register("image")} 
+       />
 
       {preview && (
-        <img
+        <Image
           src={preview}
           alt="preview"
+          width={300}
+          height={400}
           className="w-40 h-28 object-cover rounded"
         />
       )}
@@ -233,9 +272,10 @@ export default function NewsForm({ defaultValues }) {
 
       <button
         type="submit"
-        className="bg-black text-white px-4 py-2 rounded"
+        disabled={mutation.isPending}
+        className=" cursor-pointer bg-black text-white px-4 py-2 rounded"
       >
-        {defaultValues ? "সংবাদ আপডেট করুন" : "সংবাদ যোগ করুন"}
+        {defaultValues ?(mutation.isPending ? "লোড হচ্ছে..." : "সংবাদ আপডেট করুন") : (mutation.isPending ? "লোড হচ্ছে..." : "সংবাদ যোগ করুন")}
       </button>
     </form>
   );

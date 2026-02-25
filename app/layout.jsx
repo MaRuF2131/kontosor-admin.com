@@ -19,6 +19,7 @@ export const metadata = {
 
 
 import ReactQueryProvider from "@/providers/ReactQueryProvider";
+import { Toaster } from "react-hot-toast";
 
 export default function RootLayout({ children }) {
   return (
@@ -26,6 +27,18 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
+                {/* Toast Container */}
+        <Toaster
+          position="top-right"
+          reverseOrder={false}
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: "#333",
+              color: "#fff",
+            },
+          }}
+        />
         <ReactQueryProvider>
           {children}
         </ReactQueryProvider>
