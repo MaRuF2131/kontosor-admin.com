@@ -48,9 +48,9 @@ export default function NewsForm({ defaultValues }) {
       subcategory: defaultValues?.subcategory ||"",
       locationType:defaultValues?.locationType || "bangladesh",
       country: defaultValues?.country ||"",
-      division: defaultValues?.division ||"",
-      district:defaultValues?.district || "",
-      upazila:defaultValues?.upazila || "",
+      division: defaultValues?.division ||"all",
+      district:defaultValues?.district || "all",
+      upazila:defaultValues?.upazila || "all",
       image:defaultValues?.imageUrl || null,
       imageBy:defaultValues?.imageBy || "",
       status:defaultValues?.status || "draft",
@@ -62,11 +62,45 @@ export default function NewsForm({ defaultValues }) {
   // -------------------------
   // ডাইনামিক ডাটা (ডেমো)
   // -------------------------
-
+    const WorldList=[
+    "মধ্যপ্রাচ্য",
+    "যুক্তরাষ্ট্র",
+    "ইউরোপ",
+    "এশিয়া",
+    "ভারত",
+    "যুক্তরাজ্য",
+    "পাকিস্তান",
+    "মালয়েশিয়া",
+    "উত্তর আমেরিকা",
+    "দক্ষিণ আমেরিকা",
+    "আফ্রিকা",
+    "অন্যান্য"
+    ];
   const categories = {
     রাজনীতি: ["জাতীয়", "আন্তর্জাতিক"],
-    খেলাধুলা: ["ক্রিকেট", "ফুটবল"],
-    বিনোদন: ["চলচ্চিত্র", "টিভি"],
+    খেলা: ["ক্রিকেট","ফুটবল","অন্যান্য"],
+    বিনোদন: ["বলিউড","ঢালিউড","টালিউড","হলিউড","ওটিটি","নাটক","গান","অন্যান্য"],
+    বাণিজ্য:[],
+    শিক্ষা:["ক্যাম্পাস","ভর্তি","পরীক্ষা","ফলাফল","অন্যান্য"],
+    জাতীয়:[],
+    নির্বাচন:[],
+    লাইফস্টাইল:[],
+    আইন_আদালত:[],
+    অপরাধ:[],
+    স্বাস্থ্য:[],
+    ধর্ম:[],
+    রাজধানী:[],
+    শিল্প_সাহিত্য:[],
+    প্রবাস:[],
+    প্রযুক্তি:[],
+    চাকরি:[],
+    প্রযুক্তি:[],
+    নারী_শিশু:[],
+    বিচিত্র:[],
+    কর্পোরেট:[],
+    পরিবেশ_জলবায়ু:[],
+    রম্যবেলা:[],
+
   };
 
   const divisions = {
@@ -193,11 +227,13 @@ export default function NewsForm({ defaultValues }) {
 
       {/* বিশ্ব অপশন */}
       {locationType === "world" && (
-        <input
-          {...register("country")}
-          placeholder="দেশের নাম লিখুন"
-          className="w-full border p-2 rounded"
-        />
+        <select {...register("country")} className="w-full border p-2 rounded">
+          {WorldList.map((country) => (
+            <option key={country} value={country}>
+              {country}
+            </option>
+          ))}
+        </select>
       )}
 
       {/* বাংলাদেশ অপশন */}
