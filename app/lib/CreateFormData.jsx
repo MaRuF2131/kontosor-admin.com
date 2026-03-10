@@ -2,10 +2,13 @@ export const CreateFormData = async (data) => {
     try { 
         const newData= new FormData();
         Object.entries(data).forEach(([key,value]) => {
-        if(key==="image" || key==="video"){
+        if(key==="image" || key==="video" || key==='thumbnail' || key==='audio'){
+            console.log(key,value);           
             newData.append(key,value[0]);
             return;
         }
+        console.log("no",key,value);
+        
         newData.append(key,value);
         });  
 

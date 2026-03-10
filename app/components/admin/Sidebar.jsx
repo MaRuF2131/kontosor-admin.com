@@ -47,6 +47,19 @@ export default function Sidebar({SidebarOpen,setSidebarOpen}) {
       ],
     },
     {
+      name: "অডিও ব্যবস্থাপনা",
+      children: [
+        {
+          name: "সকল অডিও",
+          path: "/admin/audio",
+        },
+        {
+          name: "যোগ অডিও",
+          path: "/admin/audio/add",
+        },
+      ],
+    },
+    {
       name: "অনলাইন জরিপ",
       children: [
         { name: "সকল জরিপ", path: "/admin/poll" },
@@ -78,9 +91,9 @@ export default function Sidebar({SidebarOpen,setSidebarOpen}) {
 
             {openMenu === item.name && (
               <div className="ml-4 mt-2">
-                {item.children.map((child) => (
+                {item.children.map((child,i) => (
                   <Link
-                    key={child.path}
+                    key={i}
                     href={child.path}
                     className={`block p-2 rounded mb-1 ${
                       path === child.path ? "text-gray-400" : "hover:text-gray-400"
