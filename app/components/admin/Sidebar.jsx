@@ -47,6 +47,13 @@ export default function Sidebar({SidebarOpen,setSidebarOpen}) {
       ],
     },
     {
+      name: "ফটোগ্যালারি",
+      children: [
+        { name: "সকল ফটোগ্যালারি", path: "/admin/photo-gallery" },
+        { name: "নতুন ফটোগ্যালারি যোগ করুন", path: "/admin/photo-gallery/add" },
+      ],
+    },
+    {
       name: "অডিও ব্যবস্থাপনা",
       children: [
         {
