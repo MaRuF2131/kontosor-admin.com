@@ -66,6 +66,16 @@ export default function Sidebar({SidebarOpen,setSidebarOpen}) {
         },
       ],
     },
+
+    //  নতুন ম্যাগাজিন সেকশন
+    {
+      name: "ম্যাগাজিন ব্যবস্থাপনা",
+      children: [
+        { name: "সকল ম্যাগাজিন", path: "/admin/magazine" },
+        { name: "নতুন ম্যাগাজিন যোগ করুন", path: "/admin/magazine/add" },
+      ],
+    },
+    
     {
       name: "অনলাইন জরিপ",
       children: [
