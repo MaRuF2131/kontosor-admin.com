@@ -4,6 +4,14 @@ import PostFuntion from "@/lib/PostFuntion";
 import { useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 
+export const galleryCategory=[
+"ঢালিউড",
+"বলিউড",
+"টালিউড",
+"হলিউড",
+"অন্যান্য"
+]
+
 export default function PhotoStoryForm({ defaultValues }) {
   const {
     register,
@@ -16,6 +24,7 @@ export default function PhotoStoryForm({ defaultValues }) {
     defaultValues: {
       _id:defaultValues?._id || null,
       title:defaultValues?.title,
+      category:defaultValues?.category,
       status: defaultValues?.status || "draft",
       images: [],
       captions:[]
@@ -28,6 +37,7 @@ export default function PhotoStoryForm({ defaultValues }) {
     reset({
       _id: defaultValues?._id,
       title:defaultValues?.title,
+      category:defaultValues?.category,
       status: defaultValues?.status || "draft",
       images: defaultValues.images.map((img) => ({
         preview: img.imageUrl,   // old image url
@@ -65,6 +75,7 @@ export default function PhotoStoryForm({ defaultValues }) {
     
      formData.append("status", data.status);
      formData.append("title",data.title);
+     formData.append("category",data.category)
 
      let existingImages = [];
 
@@ -123,6 +134,16 @@ export default function PhotoStoryForm({ defaultValues }) {
       {errors.title && (
         <p className="text-red-500 text-sm">{errors.title.message}</p>
       )}
+
+      {/* বিভাগ */}
+      <select {...register("category")} className="w-full border p-2 rounded">
+        <option value="">বিভাগ নির্বাচন করুন</option>
+        {galleryCategory.map((cat) => (
+          <option key={cat} value={cat}>
+            {cat}
+          </option>
+        ))}
+      </select>
 
       {/* Image Upload */}
       <div>
