@@ -2,7 +2,7 @@ export const CreateFormData = async (data) => {
     try { 
         const newData= new FormData();
         Object.entries(data).forEach(([key,value]) => {
-        if(key==="image" || key==="video" || key==='thumbnail' || key==='audio' ||key==="pdf" || key==="coverImage"){
+        if(key==="image" || key==="video" || key==='thumbnail' || key==='audio' ||key==="pdf" || key==="coverImage" || key==="profileImage"||key==="cv"){
             console.log(key,value);           
             newData.append(key,value[0]);
             return;

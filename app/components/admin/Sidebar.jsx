@@ -75,6 +75,14 @@ export default function Sidebar({SidebarOpen,setSidebarOpen}) {
         { name: "নতুন ম্যাগাজিন যোগ করুন", path: "/admin/magazine/add" },
       ],
     },
+
+    {
+      name: "সাংবাদিক ব্যবস্থাপনা",
+      children: [
+        { name: "সকল সাংবাদিক", path: "/admin/reporter" },
+        { name: "নতুন সাংবাদিক যোগ করুন", path: "/admin/reporter/add" },
+      ],
+    },
     
     {
       name: "অনলাইন জরিপ",
