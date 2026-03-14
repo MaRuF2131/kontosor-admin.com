@@ -94,13 +94,6 @@ export default function Sidebar({SidebarOpen,setSidebarOpen}) {
         { name: "নতুন জরিপ তৈরি করুন", path: "/admin/poll/add" },
       ],
     },
-    {
-      name: "চাকরি বিজ্ঞপ্তি",
-      children: [
-        { name: "সকল চাকরি", path: "/admin/jobs" },
-        { name: "নতুন চাকরি যোগ করুন", path: "/admin/jobs/add" },
-      ],
-    },
   ];
 
   return (
