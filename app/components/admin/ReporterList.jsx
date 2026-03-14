@@ -1,8 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 
 function ReporterList({ reporters, del }) {
+
+  const [viewReporter, setViewReporter] = useState(null);
+  const [page, setPage] = useState(1);
+
   return (
     <div className="p-6 bg-white rounded shadow">
 
@@ -35,7 +40,6 @@ function ReporterList({ reporters, del }) {
           {reporters.map((rep) => (
             <tr key={rep._id} className="text-center">
 
-              {/* Profile Image */}
               <td className="p-3 border">
                 <img
                   src={rep?.profileImage}
@@ -43,22 +47,26 @@ function ReporterList({ reporters, del }) {
                 />
               </td>
 
-              {/* Name */}
               <td className="p-3 border">{rep?.name}</td>
-
-              {/* Report Area */}
               <td className="p-3 border">{rep?.reportArea}</td>
-
-              {/* Address */}
               <td className="p-3 border">{rep?.address}</td>
 
-              {/* Status */}
               <td className="p-3 border">
                 {rep?.status === "published" ? "সক্রিয়" : "ড্রাফট"}
               </td>
 
-              {/* Actions */}
               <td className="p-3 border space-x-2">
+
+                {/* VIEW */}
+                <button
+                  onClick={() => {
+                    setViewReporter(rep);
+                    setPage(1);
+                  }}
+                  className="bg-green-600 text-white px-3 py-1 rounded text-sm"
+                >
+                  View
+                </button>
 
                 <Link
                   href={`/admin/reporter/edit/${rep?._id}`}
@@ -80,6 +88,94 @@ function ReporterList({ reporters, del }) {
           ))}
         </tbody>
       </table>
+
+      {/* ================= MODAL ================= */}
+
+      {viewReporter && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-1000">
+
+          <div className="bg-white rounded-xl max-w-[900px] w-full max-h-[90vh] overflow-y-auto p-6 relative">
+
+            {/* Close */}
+            <button
+              onClick={() => setViewReporter(null)}
+              className="absolute top-4 right-4 text-gray-600 text-xl"
+            >
+              ✕
+            </button>
+
+            {/* Reporter Info */}
+            <div className="flex gap-6 mb-6">
+
+              <img
+                src={viewReporter.profileImage}
+                className="w-32 h-32 rounded-full object-cover border"
+              />
+
+              <div className="space-y-2">
+                <h3 className="text-2xl font-bold">{viewReporter.name}</h3>
+                <p><b>এলাকা:</b> {viewReporter.reportArea}</p>
+                <p><b>ঠিকানা:</b> {viewReporter.address}</p>
+                <p>
+                  <b>স্ট্যাটাস:</b>{" "}
+                  {viewReporter.status === "published"
+                    ? "সক্রিয়"
+                    : "ড্রাফট"}
+                </p>
+              </div>
+
+            </div>
+
+            {/* CV Viewer */}
+            <div>
+
+              <h3 className="text-xl font-semibold mb-4">CV</h3>
+
+              <div className="border rounded overflow-hidden">
+
+                {/* CV PAGE IMAGE */}
+                <img
+                  src={`${viewReporter.cv.replace(
+                    ".pdf",
+                    `.jpg`
+                  )}?page=${page}`}
+                  className="w-full"
+                />
+
+              </div>
+
+              {/* Pagination */}
+              <div className="flex justify-between mt-4">
+
+                <button
+                  disabled={page === 1}
+                  onClick={() => setPage(page - 1)}
+                  className="px-4 py-2 bg-gray-200 rounded"
+                >
+                  Previous
+                </button>
+
+                <span>
+                  Page {page} / {viewReporter.pages}
+                </span>
+
+                <button
+                  disabled={page === viewReporter.pages}
+                  onClick={() => setPage(page + 1)}
+                  className="px-4 py-2 bg-gray-200 rounded"
+                >
+                  Next
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      )}
+
     </div>
   );
 }
