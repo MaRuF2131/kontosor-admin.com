@@ -1,25 +1,57 @@
-"use client";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
-import api from "./axios";
+import { signIn, signOut } from "next-auth/react";
 
-export const useAdminAuth = () => {
-  const router = useRouter();
+// Login function
+export const credentialsLogin = async (formData) => {
+  try {
+    const loginRes = await signIn("credentials", {
+      redirect: false,
+      email:formData.email,
+      name: formData.name,
+      password: formData.password,
+    });
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["me"],
-    queryFn: async () => {
-      const res = await api.get("/admin/me");
-      return res.data;
-    },
-  });
-
-  useEffect(() => {
-    if (!isLoading && !data?.user) {
-      router.push("/admin/login");
+    if (!loginRes) {
+      throw new Error("Login response not found");
     }
-  }, [data, isLoading]);
 
-  return { user: data?.user, isLoading };
+    if (loginRes.error) {
+      return {
+        success: false,
+        error: loginRes.error,
+      };
+    }
+
+    return {
+      success: true,
+      data: loginRes,
+    };
+  } catch (error) {
+    console.error("Login Error:", error);
+
+    return {
+      success: false,
+      error: error.message || "Something went wrong",
+    };
+  }
+};
+
+
+// Logout function
+export const logoutUser = async () => {
+  try {
+    await signOut({
+      redirect: false,
+    });
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error("Logout Error:", error);
+
+    return {
+      success: false,
+      error: error.message || "Logout failed",
+    };
+  }
 };

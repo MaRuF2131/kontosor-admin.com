@@ -1,5 +1,6 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -8,6 +9,8 @@ import {HiX} from 'react-icons/hi'
 export default function Sidebar({SidebarOpen,setSidebarOpen}) {
   const path = usePathname();
   const [openMenu, setOpenMenu] = useState(null);
+  
+  const {data: session,status}=useSession()
 
   const toggleMenu = (menu) => {
     setOpenMenu(openMenu === menu ? null : menu);
@@ -104,6 +107,12 @@ export default function Sidebar({SidebarOpen,setSidebarOpen}) {
     <div  className={`${SidebarOpen?"fixed inset-0":"w-64 hidden lg:block relative"}  bg-black text-white px-5 pb-5 h-screen overflow-auto`}>
       <h2 className="text-2xl sticky top-0 z-[999] bg-black font-bold mb-6 pt-5">এডমিন প্যানেল</h2>
       <HiX onClick={(e)=>{e.preventDefault(); e.stopPropagation(); setSidebarOpen(false)}} className=" lg:hidden block absolute top-2 right-2 text-2xl text-white"></HiX>
+     {session?.user?.role==="superadmin" &&<Link
+            href={'/admin/create'}
+            className="block mb-3 p-2 rounded text-blue-700 hover:text-blue-900"
+          >
+          Create Admin
+      </Link>}
       {menu.map((item, index) =>
         item.children ? (
           <div key={index} className="mb-3">

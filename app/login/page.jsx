@@ -1,9 +1,9 @@
 "use client";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
-import api from "@/lib/axios";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { credentialsLogin } from "@/lib/auth";
 
 export default function AdminLogin() {
   const router = useRouter();
@@ -11,18 +11,25 @@ export default function AdminLogin() {
 
   const mutation = useMutation({
     mutationFn: async (data) => {
-      return true
-      const res = await api.post("/admin/login", data);
-      return res.data;
+      const res = await credentialsLogin(data);
+      return res;
     },
-    onSuccess: () => {
-      toast.success("সফলভাবে লগইন হয়েছে");
-      router.push("/admin");
-    },
-    onError: () => {
-      toast.error("ইমেইল বা পাসওয়ার্ড ভুল");
-    },
-  });
+
+  onSuccess: (res) => {
+    if (res?.error) {
+      toast.error(res.error);
+      return;
+    }
+
+    toast.success("সফলভাবে লগইন হয়েছে");
+    router.push("/admin");
+  },
+
+  onError: (error) => {
+    console.error(error);
+    toast.error(error.message || "কিছু সমস্যা হয়েছে");
+  },
+});
 
   const onSubmit = (data) => mutation.mutate(data);
 
@@ -47,6 +54,19 @@ export default function AdminLogin() {
           )}
         </div>
 
+                {/* নাম */}
+        <div>
+          <input
+            type="text"
+            {...register("name", { required: "নাম অবশ্যই দিতে হবে" })}
+            placeholder="নাম"
+            className="w-full p-2 border rounded"
+          />
+          {errors.name && (
+            <p className="text-red-500 text-sm">{errors.name.message}</p>
+          )}
+        </div>
+
         {/* পাসওয়ার্ড */}
         <div>
           <input
@@ -60,7 +80,7 @@ export default function AdminLogin() {
           )}
         </div>
 
-        {/* সাবমিট বাটন */}
+        {/* সাবমিট */}
         <button 
           type="submit" 
           className="w-full bg-black text-white py-2 rounded"

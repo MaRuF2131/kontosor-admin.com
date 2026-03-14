@@ -20,6 +20,7 @@ export const metadata = {
 
 import ReactQueryProvider from "@/providers/ReactQueryProvider";
 import { Toaster } from "react-hot-toast";
+import SessionWrapper from "./lib/SessionWrapper";
 
 export default function RootLayout({ children }) {
   return (
@@ -39,9 +40,11 @@ export default function RootLayout({ children }) {
             },
           }}
         />
+      <SessionWrapper> 
         <ReactQueryProvider>
           {children}
         </ReactQueryProvider>
+      </SessionWrapper> 
       </body>
     </html>
   );
