@@ -98,6 +98,40 @@ export default function VideoStoryListPage() {
   return (
     <div>
 
+      <div className="mb-6 flex flex-col md:flex-row gap-3">
+
+        {/* Search */}
+        <input
+          type="text"
+          placeholder="Search news...."
+          {...register("search")}
+          className="border px-3 py-2 rounded w-full md:w-80"
+        />
+
+        {/* Status Filter */}
+        <select
+          {...register("status")}
+          className="border px-3 py-2 rounded w-full md:w-40"
+        >
+          <option value="all">All Status</option>
+          <option value="published">Published</option>
+          <option value="draft">Draft</option>
+        </select>
+
+        {/* Reset Button */}
+        <button
+          onClick={() =>
+            reset({
+              status: "all",
+              search: "",
+            })
+          }
+          className="bg-gray-200 px-4 py-2 rounded"
+        >
+          Reset
+        </button>
+     </div>
+
       <VideoStoryList
         stories={stories}
         del={handleDelete}

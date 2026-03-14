@@ -17,7 +17,6 @@ export default function VideoListPage() {
     criteriaMode: "all",
     defaultValues:{
       status:"all",
-      type:"all",
       search:""
     }
   });
@@ -43,7 +42,7 @@ export default function VideoListPage() {
       url:"/admin/audio",
       keyValuepair:{
         search:debouncedSearchTerm || '',
-        status:'all',
+        status:filterStatus||'all',
         category:'all'
         },
         page:1,limit:10
@@ -56,7 +55,7 @@ export default function VideoListPage() {
             query:{
               url:"/admin/audio",
               search:debouncedSearchTerm || '',
-              status:'all',
+              status:filterStatus||'all',
               category:'all'
               },
           });
@@ -92,6 +91,40 @@ export default function VideoListPage() {
 
   return (
     <div>
+
+    <div className="mb-6 flex flex-col md:flex-row gap-3">
+
+        {/* Search */}
+        <input
+          type="text"
+          placeholder="Search news...."
+          {...register("search")}
+          className="border px-3 py-2 rounded w-full md:w-80"
+        />
+
+        {/* Status Filter */}
+        <select
+          {...register("status")}
+          className="border px-3 py-2 rounded w-full md:w-40"
+        >
+          <option value="all">All Status</option>
+          <option value="published">Published</option>
+          <option value="draft">Draft</option>
+        </select>
+
+        {/* Reset Button */}
+        <button
+          onClick={() =>
+            reset({
+              status: "all",
+              search: "",
+            })
+          }
+          className="bg-gray-200 px-4 py-2 rounded"
+        >
+          Reset
+        </button>
+     </div>
       <AudioList audios={audios} del={handleDelete}></AudioList>
                     {/* Load more / end indicator */}
         <div ref={loadMoreRef} className="w-full text-center mt-8">

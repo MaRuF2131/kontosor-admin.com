@@ -24,6 +24,7 @@ export default function PhotoStoryList({ stories, del }) {
         <thead className="bg-gray-100">
           <tr>
             <th className="p-3 border">ছবি</th>
+            <th className="p-3 border">ক্যাপশন</th>
             <th className="p-3 border">মোট ছবি</th>
             <th className="p-3 border">স্ট্যাটাস</th>
             <th className="p-3 border">অ্যাকশন</th>
@@ -40,6 +41,10 @@ export default function PhotoStoryList({ stories, del }) {
                   alt="thumb"
                   className="w-20 h-14 object-cover mx-auto rounded"
                 />
+              </td>
+
+              <td className="p-3 border">
+                {story.images[0]?.caption}
               </td>
 
               <td className="p-3 border">

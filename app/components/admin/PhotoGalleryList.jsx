@@ -24,6 +24,7 @@ export default function PhotoStoryList({ stories, del }) {
         <thead className="bg-gray-100">
           <tr>
             <th className="p-3 border">ছবি</th>
+            <th className="p-3 border">শিরোনাম</th>
             <th className="p-3 border">মোট ছবি</th>
             <th className="p-3 border">স্ট্যাটাস</th>
             <th className="p-3 border">অ্যাকশন</th>
@@ -42,6 +43,10 @@ export default function PhotoStoryList({ stories, del }) {
                 />
               </td>
 
+                <td className="p-3 border">
+                {story.title}
+              </td>
+
               <td className="p-3 border">
                 {story.images?.length || 0}
               </td>
@@ -58,7 +63,7 @@ export default function PhotoStoryList({ stories, del }) {
                 )}
               </td>
 
-              <td className="p-3 border space-x-2">
+              <td className="p-3 border space-x-2 space-y-2">
                 <Link
                   href={`/admin/photo-gallery/edit/${story._id}`}
                   className="px-3 py-1 bg-blue-600 text-white rounded text-sm"
