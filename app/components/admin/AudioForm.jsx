@@ -27,6 +27,8 @@ export default function AudioForm({ defaultValues }) {
       reset({
         _id: defaultValues?._id || null,
         title: defaultValues?.title || "",
+        audio:defaultValues?.audioUrl ||"",
+        thumbnail:defaultValues?.thumbnail ||"",
         status: defaultValues?.status || "draft",
       });
     }
@@ -46,7 +48,10 @@ export default function AudioForm({ defaultValues }) {
       setAudioPreview(null);
       return;
     }
-
+    if(typeof audioFile==="string"){
+      setAudioPreview(audioFile);
+      return
+    }
     const url = URL.createObjectURL(audioFile[0]);
     setAudioPreview(url);
 
@@ -59,7 +64,10 @@ export default function AudioForm({ defaultValues }) {
       setThumbPreview(null);
       return;
     }
-
+    if(typeof thumbFile==="string"){
+      setThumbPreview(thumbFile)
+      return
+    };
     const url = URL.createObjectURL(thumbFile[0]);
     setThumbPreview(url);
 
@@ -105,7 +113,7 @@ export default function AudioForm({ defaultValues }) {
         <input
           type="file"
           accept="audio/*"
-          {...register("audio", { required: "অডিও আপলোড করুন" })}
+          {...register("audio")}
         />
       </div>
 
