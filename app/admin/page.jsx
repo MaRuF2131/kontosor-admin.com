@@ -2,6 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/axios";
 import StatsCard from "@/components/admin/StatsCard";
+import Link from "next/link";
 
 export default function AdminDashboard() {
   // ড্যাশবোর্ডের স্ট্যাটস লোড
@@ -9,6 +10,8 @@ export default function AdminDashboard() {
     queryKey: ["adminStats"],
     queryFn: async () => {
       const res = await api.get("/admin/stats");
+      console.log(res);
+      
       return res.data;
     },
   });
@@ -21,22 +24,17 @@ export default function AdminDashboard() {
 
       {/* স্ট্যাটস কার্ড */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mb-8">
-        <StatsCard title="মোট সংবাদ" value={data?.totalNews || 0} />
-        <StatsCard title="মোট ভিউ" value={data?.totalViews || 0} />
-        <StatsCard title="মোট বিভাগ" value={data?.totalCategories || 0} />
-        <StatsCard title="মোট ব্যবহারকারী" value={data?.totalUsers || 0} />
+        <StatsCard title="মোট সংবাদ" value={data|| 0} />
+        <StatsCard title="মোট বিভাগ" value={data?.totalCategories ||25} />
       </div>
 
       {/* দ্রুত লিঙ্ক */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         <div className="bg-white p-4 rounded shadow text-center hover:bg-gray-100 cursor-pointer">
-          <a href="/admin/news">সকল সংবাদ</a>
+          <Link href="/admin/news">সকল সংবাদ</Link>
         </div>
         <div className="bg-white p-4 rounded shadow text-center hover:bg-gray-100 cursor-pointer">
-          <a href="/admin/news/add">নতুন সংবাদ যোগ করুন</a>
-        </div>
-        <div className="bg-white p-4 rounded shadow text-center hover:bg-gray-100 cursor-pointer">
-          <a href="/admin/categories">বিভাগসমূহ</a>
+          <Link href="/admin/news/add">নতুন সংবাদ যোগ করুন</Link>
         </div>
       </div>
     </div>
