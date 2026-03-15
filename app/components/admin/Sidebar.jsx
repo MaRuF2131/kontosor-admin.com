@@ -86,6 +86,14 @@ export default function Sidebar({SidebarOpen,setSidebarOpen}) {
         { name: "নতুন সাংবাদিক যোগ করুন", path: "/admin/reporter/add" },
       ],
     },
+
+    {
+        name: "মতামত ব্যবস্থাপনা",
+        children: [
+          { name: "সকল মতামত", path: "/admin/opinion" },
+          { name: "নতুন মতামত যোগ করুন", path: "/admin/opinion/add" },
+        ],
+    },
     
     {
       name: "অনলাইন জরিপ",
